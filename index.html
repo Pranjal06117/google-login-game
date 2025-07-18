@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Game with Google Login</title>
+  <meta name="google-signin-client_id" content="730818090508-0jl37l4odg0jam01j6s0tdascpkkl8bj.apps.googleusercontent.com">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <h1>Welcome to My Game</h1>
+  <div id="g_id_onload"
+       data-client_id="730818090508-0jl37l4odg0jam01j6s0tdascpkkl8bj.apps.googleusercontent.com"
+       data-callback="onSignIn">
+  </div>
+
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large">
+  </div>
+
+  <script>
+    function onSignIn(response) {
+      const user = response.credential;
+      console.log("User Token:", user);
+      // You can decode this token to get user info
+    }
+  </script>
+
+</body>
+</html>
