@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fruit Ninja</title>
+  <link rel="stylesheet" href="fruit.css" />
+</head>
+<body>
+  <h1>🍉 Fruit Ninja Game</h1>
+  <p>Game will go here</p>
+  <script>
+    // Redirect to index.html if not logged in
+  if (!localStorage.getItem("user")) {
+    window.location.href = "index.html";
+  }
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) window.location.href = "index.html";
+  </script>
+  <script src="fruit.js"></script>
+</body>
+</html>

@@ -1,18 +1,29 @@
-body {
-  font-family: sans-serif;
-  text-align: center;
-  padding: 20px;
-  background: #f0f8ff;
+function handleCredentialResponse(response) {
+  const data = parseJwt(response.credential);
+  localStorage.setItem("user", JSON.stringify(data));
+  showGameOptions(data);
 }
 
-#click-button {
-  font-size: 24px;
-  padding: 10px 20px;
-  margin-top: 20px;
+function parseJwt(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(atob(base64));
 }
 
-@media screen and (max-width: 600px) {
-  #click-button {
-    font-size: 18px;
+function showGameOptions(user) {
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("games-section").style.display = "block";
+  document.getElementById("welcome-text").innerText = `Hello, ${user.name}`;
+}
+
+function signOut() {
+  localStorage.removeItem("user");
+  location.reload();
+}
+
+window.onload = function () {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    showGameOptions(user);
   }
-}
+};
