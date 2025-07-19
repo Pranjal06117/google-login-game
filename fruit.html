@@ -1,20 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fruit Ninja</title>
-  <link rel="stylesheet" href="fruit.css" />
+  <title>Fruit Slice Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+    #score {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      z-index: 999;
+    }
+  </style>
 </head>
 <body>
-  <h1>🍉 Fruit Ninja Game</h1>
-  <p>Game will go here</p>
+  <div id="score">Score: 0</div>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
   <script>
-    // Redirect to index.html if not logged in
-  if (!localStorage.getItem("user")) {
-    window.location.href = "index.html";
-  }
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) window.location.href = "index.html";
-  </script>
-  <script src="fruit.js"></script>
-</body>
-</html>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let fruits = [];
+    let score = 0;
+    let gameOver = false;
+
+    function randomFruit() {
+      return {
+        x: Math.random() * canvas.width,
+        y: -50,
+        radius: 25,
+        speed: 2 + Math.random() * 3,
+        sliced: false,
+      };
+    }
+
+    function spawnFruit() {
+      if (!gameOver) fruits.push(randomFruit());
+    }
+
+    function drawFruit(fruit) {
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI * 2);
+      ctx.fillStyle = fruit.sliced ? "gray" : "red";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      fruits.forEach((fruit, index) => {
+        fruit.y += fruit.speed;
+
+        if (fruit.y > canvas.height && !fruit.sliced) {
+          gameOver = true;
+          alert("Game Over! Final Score: " + score);
+        }
+
+        drawFruit(fruit);
+      });
+
+      requestAnimationFrame(update);
+    }
+
+    function sliceAt(x, y) {
+      fruits.forEach((fruit) => {
+        const dx = fruit.x - x;
+        const dy = fruit.y - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < fruit.radius && !fruit.slic

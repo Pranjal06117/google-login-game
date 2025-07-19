@@ -1,20 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Subway Surf</title>
-  <link rel="stylesheet" href="subway.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subway Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(#87ceeb, #fff);
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <h1>🏃 Subway Surf Game</h1>
-  <p>Game will go here</p>
   <script>
-    // Redirect to index.html if not logged in
-  if (!localStorage.getItem("user")) {
-    window.location.href = "index.html";
+    // Block access if not logged in
+    if (!localStorage.getItem("user")) {
+      window.location.href = "index.html";
+    }
+  <script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  
+  <div id="score" style="position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; font-weight: bold; z-index: 999;">
+  Score: 0
+  </div>
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Player
+  const player = {
+    x: 50,
+    y: canvas.height - 150,
+    width: 50,
+    height: 50,
+    color: "red",
+    velocityY: 0,
+    gravity: 1.5,
+    jumpPower: -20,
+    isJumping: false
+  };
+
+  // Obstacles
+  const obstacles = [];
+
+  function spawnObstacle() {
+    const height = 50;
+    const width = 30;
+    const y = canvas.height - 100 - height;
+
+    obstacles.push({
+      x: canvas.width,
+      y: y,
+      width: width,
+      height: height,
+      color: "black",
+      speed: 7
+    });
   }
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) window.location.href = "index.html";
-  </script>
-  <script src="subway.js"></script>
+
+  function drawObstacles() {
+    for (let obs of obstacles) {
+      ctx.fillStyle = obs.color;
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    }
+  }
+
+  function moveObstacles() {
+    for (let obs of obstacles) {
+      obs.x -= obs.speed;
+    }
+  }
+
+  function detectCollision(player, obs) {
+    return (
+      player.x < obs.x + obs.width &&
+      player.x + player.width > obs.x &&
+      player.y < obs.y + obs.height &&
+      player.y + player.height > obs.y
+    );
+  }
+
+  function drawPlayer() {
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+  }
+  let score = 0;
+const scoreElement = document.getElementById("score");
+
+function updateScore() {
+  if (!gameOver) {
+    score++;
+    scoreElement.innerText = "Score: " + score;
+  }
+}
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Gravity
+    player.velocityY += player.gravity;
+    player.y += player.velocityY;
+
+    // Floor
+    if (player.y + player.height >= canvas.height - 100) {
+      player.y = canvas.height - 100 - player.height;
+      player.velocityY = 0;
+      player.isJumping = false;
+    }
+
+    drawPlayer();
+
+    moveObstacles();
+    drawObstacles();
+
+    // Check collisions
+    for (let obs of obstacles) {
+      if (detectCollision(player, obs)) {
+        alert("💥 Game Over!");
+        gameOver = true;
+        return;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  // Controls
+  function jump() {
+    if (!player.isJumping) {
+      player.velocityY = player.jumpPower;
+      player.isJumping = true;
+    }
+  }
+
+  document.addEventListener("touchstart", jump);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") jump();
+  });
+
+  // Start game
+  setInterval(spawnObstacle, 2000); // every 2 seconds
+  update();
+  setInterval(updateScore, 100); // Increase score every 100ms
+</script>
 </body>
 </html>
