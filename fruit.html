@@ -21,64 +21,122 @@
       font-weight: bold;
       z-index: 999;
     }
+    #g_id_onload, #g_id_signin {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
-  <div id="score">Score: 0</div>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <!-- Google Sign-In -->
+  <div id="g_id_onload"
+       data-client_id="730818090508-0jl37l4odg0jam01j6s0tdascpkkl8bj.apps.googleusercontent.com"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="sign_in_with"
+       data-shape="rectangular"
+       data-logo_alignment="left">
+  </div>
+
+  <div id="score" style="display: none;">Score: 0</div>
+  <canvas id="gameCanvas" width="400" height="600" style="display: none;"></canvas>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    function handleCredentialResponse(response) {
+      // Hide login UI
+      document.getElementById("g_id_onload").style.display = "none";
+      document.querySelector(".g_id_signin").style.display = "none";
+      document.getElementById("score").style.display = "block";
+      document.getElementById("gameCanvas").style.display = "block";
 
-    let fruits = [];
-    let score = 0;
-    let gameOver = false;
-
-    function randomFruit() {
-      return {
-        x: Math.random() * canvas.width,
-        y: -50,
-        radius: 25,
-        speed: 2 + Math.random() * 3,
-        sliced: false,
-      };
+      // Continue to load the game
+      startGame();
     }
 
-    function spawnFruit() {
-      if (!gameOver) fruits.push(randomFruit());
-    }
+    function startGame() {
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
 
-    function drawFruit(fruit) {
-      ctx.beginPath();
-      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI * 2);
-      ctx.fillStyle = fruit.sliced ? "gray" : "red";
-      ctx.fill();
-      ctx.closePath();
-    }
+      let fruits = [];
+      let score = 0;
+      let gameOver = false;
 
-    function update() {
-      if (gameOver) return;
+      function randomFruit() {
+        return {
+          x: Math.random() * canvas.width,
+          y: -50,
+          radius: 25,
+          speed: 2 + Math.random() * 3,
+          sliced: false,
+        };
+      }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      function spawnFruit() {
+        if (!gameOver) fruits.push(randomFruit());
+      }
 
-      fruits.forEach((fruit, index) => {
-        fruit.y += fruit.speed;
+      function drawFruit(fruit) {
+        ctx.beginPath();
+        ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI * 2);
+        ctx.fillStyle = fruit.sliced ? "gray" : "red";
+        ctx.fill();
+        ctx.closePath();
+      }
 
-        if (fruit.y > canvas.height && !fruit.sliced) {
-          gameOver = true;
-          alert("Game Over! Final Score: " + score);
-        }
+      function update() {
+        if (gameOver) return;
 
-        drawFruit(fruit);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        fruits.forEach((fruit, index) => {
+          fruit.y += fruit.speed;
+
+          if (fruit.y > canvas.height && !fruit.sliced) {
+            gameOver = true;
+            alert("Game Over! Final Score: " + score);
+          }
+
+          drawFruit(fruit);
+        });
+
+        requestAnimationFrame(update);
+      }
+
+      function sliceAt(x, y) {
+        fruits.forEach((fruit) => {
+          const dx = fruit.x - x;
+          const dy = fruit.y - y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < fruit.radius && !fruit.sliced) {
+            fruit.sliced = true;
+            score += 10;
+            document.getElementById("score").innerText = "Score: " + score;
+          }
+        });
+      }
+
+      canvas.addEventListener("touchmove", function (e) {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        sliceAt(x, y);
       });
 
-      requestAnimationFrame(update);
+      setInterval(spawnFruit, 1000);
+      update();
     }
-
-    function sliceAt(x, y) {
-      fruits.forEach((fruit) => {
-        const dx = fruit.x - x;
-        const dy = fruit.y - y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < fruit.radius && !fruit.slic
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Game Zone</title>
-  <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="730818090508-0jl37l4odg0jam01j6s0tdascpkkl8bj.apps.googleusercontent.com">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -10,7 +10,7 @@
   <div id="login-section">
     <h1>Welcome to Game Zone</h1>
     <div id="g_id_onload"
-         data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com"
+         data-client_id="730818090508-0jl37l4odg0jam01j6s0tdascpkkl8bj.apps.googleusercontent.com"
          data-context="signin"
          data-callback="handleCredentialResponse"
          data-auto_prompt="false">
@@ -26,11 +26,13 @@
     </div>
   </div>
 
-  <div id="games-section" style="display:none;">
-    <p id="welcome-text"></p>
-    <button onclick="location.href='subway.html'">🏃 Subway Surf Game</button>
-    <button onclick="location.href='fruit.html'">🍉 Fruit Ninja Game</button>
-    <button onclick="signOut()">🚪 Logout</button>
+  <div id="games-section" style="display: none;">
+    <h2 id="welcome-text"></h2>
+    <p>Select a game:</p>
+    <button onclick="window.location.href='runner.html'">🚀 Subway Runner</button>
+    <button onclick="window.location.href='fruitninja.html'">🍉 Fruit Ninja</button>
+    <br><br>
+    <button onclick="signOut()">Sign Out</button>
   </div>
 
   <script src="script.js"></script>

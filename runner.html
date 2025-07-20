@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fruit Ninja</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #111; color: white; text-align: center; }
+    canvas { display: block; margin: auto; background: #222; }
+  </style>
+</head>
+<body>
+  <h1>🍉 Fruit Ninja</h1>
+  <canvas id="fruitCanvas" width="500" height="400"></canvas>
+  <script>
+    if (!localStorage.getItem("user")) {
+      window.location.href = "index.html";
+    }
+
+    const canvas = document.getElementById("fruitCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let fruits = [];
+    let score = 0;
+
+    function spawnFruit() {
+      fruits.push({
+        x: Math.random() * 460 + 20,
+        y: 400,
+        radius: 20,
+        vx: (Math.random() - 0.5) * 4,
+        vy: -10 - Math.random() * 5
+      });
+    }
+
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      fruits = fruits.filter(fruit => {
+        const dist = Math.hypot(mx - fruit.x, my - fruit.y);
+        if (dist < fruit.radius) {
+          score++;
+          return false;
+        }
+        return true;
+      });
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillText("Score: " + score, 10, 20);
+
+      for (let fruit of fruits) {
+        ctx.beginPath();
+        ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "lime";
+        ctx.fill();
+        fruit.x += fruit.vx;
+        fruit.y += fruit.vy;
+        fruit.vy += 0.5;
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    setInterval(spawnFruit, 1000);
+    draw();
+  </script>
+</body>
+</html>

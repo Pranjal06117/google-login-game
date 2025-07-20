@@ -14,139 +14,157 @@
     canvas {
       display: block;
     }
+
+    #score {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
+  <!-- Check login -->
   <script>
-    // Block access if not logged in
     if (!localStorage.getItem("user")) {
       window.location.href = "index.html";
     }
-  <script>
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
+  </script>
+
+  <!-- Score display -->
+  <div id="score">Score: 0</div>
   
-  <div id="score" style="position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; font-weight: bold; z-index: 999;">
-  Score: 0
-  </div>
+  <!-- Game canvas -->
+  <canvas id="gameCanvas"></canvas>
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-  // Player
-  const player = {
-    x: 50,
-    y: canvas.height - 150,
-    width: 50,
-    height: 50,
-    color: "red",
-    velocityY: 0,
-    gravity: 1.5,
-    jumpPower: -20,
-    isJumping: false
-  };
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-  // Obstacles
-  const obstacles = [];
+    // Player object
+    const player = {
+      x: 50,
+      y: canvas.height - 150,
+      width: 50,
+      height: 50,
+      color: "red",
+      velocityY: 0,
+      gravity: 1.5,
+      jumpPower: -20,
+      isJumping: false
+    };
 
-  function spawnObstacle() {
-    const height = 50;
-    const width = 30;
-    const y = canvas.height - 100 - height;
+    // Obstacles array
+    const obstacles = [];
 
-    obstacles.push({
-      x: canvas.width,
-      y: y,
-      width: width,
-      height: height,
-      color: "black",
-      speed: 7
-    });
-  }
+    function spawnObstacle() {
+      const height = 50;
+      const width = 30;
+      const y = canvas.height - 100 - height;
 
-  function drawObstacles() {
-    for (let obs of obstacles) {
-      ctx.fillStyle = obs.color;
-      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-    }
-  }
-
-  function moveObstacles() {
-    for (let obs of obstacles) {
-      obs.x -= obs.speed;
-    }
-  }
-
-  function detectCollision(player, obs) {
-    return (
-      player.x < obs.x + obs.width &&
-      player.x + player.width > obs.x &&
-      player.y < obs.y + obs.height &&
-      player.y + player.height > obs.y
-    );
-  }
-
-  function drawPlayer() {
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-  }
-  let score = 0;
-const scoreElement = document.getElementById("score");
-
-function updateScore() {
-  if (!gameOver) {
-    score++;
-    scoreElement.innerText = "Score: " + score;
-  }
-}
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Gravity
-    player.velocityY += player.gravity;
-    player.y += player.velocityY;
-
-    // Floor
-    if (player.y + player.height >= canvas.height - 100) {
-      player.y = canvas.height - 100 - player.height;
-      player.velocityY = 0;
-      player.isJumping = false;
+      obstacles.push({
+        x: canvas.width,
+        y: y,
+        width: width,
+        height: height,
+        color: "black",
+        speed: 7
+      });
     }
 
-    drawPlayer();
-
-    moveObstacles();
-    drawObstacles();
-
-    // Check collisions
-    for (let obs of obstacles) {
-      if (detectCollision(player, obs)) {
-        alert("💥 Game Over!");
-        gameOver = true;
-        return;
+    function drawObstacles() {
+      for (let obs of obstacles) {
+        ctx.fillStyle = obs.color;
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
       }
     }
 
-    requestAnimationFrame(update);
-  }
-
-  // Controls
-  function jump() {
-    if (!player.isJumping) {
-      player.velocityY = player.jumpPower;
-      player.isJumping = true;
+    function moveObstacles() {
+      for (let obs of obstacles) {
+        obs.x -= obs.speed;
+      }
     }
-  }
 
-  document.addEventListener("touchstart", jump);
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") jump();
-  });
+    function detectCollision(player, obs) {
+      return (
+        player.x < obs.x + obs.width &&
+        player.x + player.width > obs.x &&
+        player.y < obs.y + obs.height &&
+        player.y + player.height > obs.y
+      );
+    }
 
-  // Start game
-  setInterval(spawnObstacle, 2000); // every 2 seconds
-  update();
-  setInterval(updateScore, 100); // Increase score every 100ms
-</script>
+    function drawPlayer() {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    let score = 0;
+    let gameOver = false;
+    const scoreElement = document.getElementById("score");
+
+    function updateScore() {
+      if (!gameOver) {
+        score++;
+        scoreElement.innerText = "Score: " + score;
+      }
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Gravity
+      player.velocityY += player.gravity;
+      player.y += player.velocityY;
+
+      // Floor collision
+      if (player.y + player.height >= canvas.height - 100) {
+        player.y = canvas.height - 100 - player.height;
+        player.velocityY = 0;
+        player.isJumping = false;
+      }
+
+      drawPlayer();
+      moveObstacles();
+      drawObstacles();
+
+      // Collision detection
+      for (let obs of obstacles) {
+        if (detectCollision(player, obs)) {
+          alert("💥 Game Over!");
+          gameOver = true;
+          return;
+        }
+      }
+
+      if (!gameOver) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    // Jump controls
+    function jump() {
+      if (!player.isJumping) {
+        player.velocityY = player.jumpPower;
+        player.isJumping = true;
+      }
+    }
+
+    document.addEventListener("touchstart", jump);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") jump();
+    });
+
+    // Start game
+    setInterval(spawnObstacle, 2000); // every 2 sec
+    setInterval(updateScore, 100); // every 100ms
+    update(); // start animation
+  </script>
 </body>
 </html>
